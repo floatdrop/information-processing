@@ -295,3 +295,14 @@ TestResults
 /_ReSharper.auto/XmlIndex/mscorlib.xml/AC9174A0.bin
 /_ReSharper.auto/XmlIndex/mscorlib.xml/B4F38832.bin
 /_ReSharper.auto/XmlIndex/mscorlib.xml/E0ED237E.bin
+*.suo
+*.DotSettings
+*\obj
+*\bin
+*\obj\*
+*\bin\*
+000005.sst
+000009.log
+LOCK
+LOG
+MANIFEST-000007
