@@ -23,6 +23,7 @@ namespace auto
 			_playTimer.Stop();
 			UpdateResearchInfo();
 			UpdateImage();
+			UpdateFrameCount();
 			ImageBox.Focus();
 		}
 
