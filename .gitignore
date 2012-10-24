@@ -4,6 +4,12 @@ obj
 
 # mstest test results
 TestResults
+*/_ReSharper*
+*/_ReSharper*/*
+*/_ReSharper.auto
+*/_ReSharper.auto/*
+/_ReSharper.auto/*
+/_ReSharper.auto
 /_ReSharper.auto/AspFileDataCache.dat
 /_ReSharper.auto/BuildScriptCache/.crc
 /_ReSharper.auto/BuildScriptCache/.version
@@ -301,8 +307,3 @@ TestResults
 *\bin
 *\obj\*
 *\bin\*
-000005.sst
-000009.log
-LOCK
-LOG
-MANIFEST-000007
