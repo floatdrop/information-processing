@@ -14,6 +14,16 @@ namespace auto
         private readonly string[] _dirContent;
         private int _idx = 0;
 
+		public int Count()
+		{
+			return _dirContent.Count();
+		}
+
+		public int CurrentIndex()
+		{
+			return _idx;
+		}
+
         public ImageFileGallery(string directory)
         {
             _dirContent = Directory.GetFiles(directory);

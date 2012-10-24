@@ -11,22 +11,11 @@ namespace auto
             InitializeComponent();
             UpdateResearchInfo();
             UpdateImage();
-            ImageBox.KeyDown += Form1KeyUp;
             ImageBox.Focus();
         }
 
         private Image<Bgr, byte> _oldImage = new Image<Bgr, byte>(640, 480); 
         private Image<Bgr, byte> _dataImage = new Image<Bgr, byte>(640, 480); 
-
-        private void Form1KeyUp(object sender, KeyEventArgs e)
-        {
-            if(e.KeyCode == Keys.Right)
-            {
-                _imgCollection.MoveRight();
-                UpdateResearchInfo();
-                UpdateImage();
-            }
-        }
 
         private void UpdateResearchInfo()
         {
@@ -55,9 +44,31 @@ namespace auto
             ImageBox.Image = _imgCollection.GetImage();
             DebugWindow.Image = _dataImage;
         }
-
-
+		
         private const string DataFolder = "rats";
         private readonly ImageFileGallery _imgCollection = new ImageFileGallery(DataFolder);
+
+		private void StepRight_Click(object sender, System.EventArgs e)
+		{
+			_imgCollection.MoveRight();
+			UpdateResearchInfo();
+			UpdateImage();
+			UpdateFrameCount();
+		}
+
+	    private void StepBack_Click(object sender, System.EventArgs e)
+		{
+			_imgCollection.MoveLeft();
+			UpdateResearchInfo();
+			UpdateImage();
+			UpdateFrameCount();
+		}
+
+	    private bool Playing = false;
+
+		private void UpdateFrameCount()
+		{
+			FrameCount.Text = string.Format("{0} / {1}", _imgCollection.CurrentIndex(), _imgCollection.Count());
+		}
     }
 }
