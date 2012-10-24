@@ -1,6 +1,8 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Windows.Forms;
 using Emgu.CV;
 using Emgu.CV.Structure;
+using System.Windows.Threading;
 
 namespace auto
 {
@@ -9,6 +11,8 @@ namespace auto
         public Form1()
         {
             InitializeComponent();
+			_playTimer = new DispatcherTimer(new TimeSpan(0,0,0,0,100), DispatcherPriority.Normal, StepRight_Click, Dispatcher.CurrentDispatcher);
+			_playTimer.Stop();
             UpdateResearchInfo();
             UpdateImage();
             ImageBox.Focus();
@@ -46,7 +50,7 @@ namespace auto
         }
 		
         private const string DataFolder = "rats";
-        private readonly ImageFileGallery _imgCollection = new ImageFileGallery(DataFolder);
+        private static readonly ImageFileGallery _imgCollection = new ImageFileGallery(DataFolder);
 
 		private void StepRight_Click(object sender, System.EventArgs e)
 		{
@@ -64,11 +68,28 @@ namespace auto
 			UpdateFrameCount();
 		}
 
-	    private bool Playing = false;
+	    private bool _playing = false;
+	    private DispatcherTimer _playTimer;
+
 
 		private void UpdateFrameCount()
 		{
 			FrameCount.Text = string.Format("{0} / {1}", _imgCollection.CurrentIndex(), _imgCollection.Count());
+		}
+
+		private void PlayStop_Click(object sender, System.EventArgs e)
+		{
+			if (_playing)
+			{
+				PlayStop.Text = "Play";
+				_playTimer.Stop();
+			} 
+			else
+			{
+				PlayStop.Text = "Stop";
+				_playTimer.Start();
+			}
+			_playing = !_playing;
 		}
     }
 }

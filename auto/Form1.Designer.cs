@@ -44,6 +44,7 @@ namespace auto
 			this.StepRight = new System.Windows.Forms.Button();
 			this.FrameCount = new System.Windows.Forms.Label();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+			this.PlayStop = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.ImageBox)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.DebugWindow)).BeginInit();
 			this.tableLayoutPanel1.SuspendLayout();
@@ -83,9 +84,9 @@ namespace auto
 			// 
 			this.StepRight.Anchor = System.Windows.Forms.AnchorStyles.Left;
 			this.StepRight.Font = new System.Drawing.Font("Microsoft Sans Serif", 24F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-			this.StepRight.Location = new System.Drawing.Point(704, 12);
+			this.StepRight.Location = new System.Drawing.Point(704, 13);
 			this.StepRight.Name = "StepRight";
-			this.StepRight.Size = new System.Drawing.Size(56, 53);
+			this.StepRight.Size = new System.Drawing.Size(56, 51);
 			this.StepRight.TabIndex = 6;
 			this.StepRight.Text = "→";
 			this.StepRight.UseVisualStyleBackColor = true;
@@ -104,13 +105,16 @@ namespace auto
 			// 
 			// tableLayoutPanel1
 			// 
-			this.tableLayoutPanel1.ColumnCount = 3;
+			this.tableLayoutPanel1.ColumnCount = 5;
+			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 170F));
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-			this.tableLayoutPanel1.Controls.Add(this.StepRight, 2, 0);
-			this.tableLayoutPanel1.Controls.Add(this.FrameCount, 1, 0);
-			this.tableLayoutPanel1.Controls.Add(this.StepBack, 0, 0);
+			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 170F));
+			this.tableLayoutPanel1.Controls.Add(this.StepRight, 3, 0);
+			this.tableLayoutPanel1.Controls.Add(this.FrameCount, 2, 0);
+			this.tableLayoutPanel1.Controls.Add(this.StepBack, 1, 0);
+			this.tableLayoutPanel1.Controls.Add(this.PlayStop, 4, 0);
 			this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Bottom;
 			this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 498);
 			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -118,6 +122,18 @@ namespace auto
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
 			this.tableLayoutPanel1.Size = new System.Drawing.Size(1317, 77);
 			this.tableLayoutPanel1.TabIndex = 8;
+			// 
+			// PlayStop
+			// 
+			this.PlayStop.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.PlayStop.Font = new System.Drawing.Font("Microsoft Sans Serif", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+			this.PlayStop.Location = new System.Drawing.Point(1149, 3);
+			this.PlayStop.Name = "PlayStop";
+			this.PlayStop.Size = new System.Drawing.Size(165, 71);
+			this.PlayStop.TabIndex = 8;
+			this.PlayStop.Text = "Play";
+			this.PlayStop.UseVisualStyleBackColor = true;
+			this.PlayStop.Click += new System.EventHandler(this.PlayStop_Click);
 			// 
 			// Form1
 			// 
@@ -143,6 +159,7 @@ namespace auto
 		private Button StepRight;
 		private Label FrameCount;
 		private TableLayoutPanel tableLayoutPanel1;
+		private Button PlayStop;
     }
 }
 
