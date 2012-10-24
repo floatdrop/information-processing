@@ -64,12 +64,10 @@ namespace auto
             // Form1
             // 
             this.AutoScaleDimensions = new SizeF(6F, 13F);
-            this.AutoScaleMode = AutoScaleMode.Font;
             this.ClientSize = new Size(1317, 501);
             this.Controls.Add(this.DebugWindow);
             this.Controls.Add(this.ImageBox);
             this.Name = "Form1";
-            this.SizeGripStyle = SizeGripStyle.Show;
             this.Text = "Form";
             ((ISupportInitialize)(this.ImageBox)).EndInit();
             ((ISupportInitialize)(this.DebugWindow)).EndInit();
