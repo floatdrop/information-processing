@@ -1,18 +1,40 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "auto", "auto\auto.csproj", "{F9166515-BDAB-436E-8E14-EC3551C80EB1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Razmetka", "Razmetka\Razmetka.csproj", "{0F432055-3CE9-431A-8990-E0918AF6B90C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
 		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F9166515-BDAB-436E-8E14-EC3551C80EB1}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{F9166515-BDAB-436E-8E14-EC3551C80EB1}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{F9166515-BDAB-436E-8E14-EC3551C80EB1}.Debug|Mixed Platforms.Build.0 = Debug|x86
 		{F9166515-BDAB-436E-8E14-EC3551C80EB1}.Debug|x86.ActiveCfg = Debug|x86
 		{F9166515-BDAB-436E-8E14-EC3551C80EB1}.Debug|x86.Build.0 = Debug|x86
+		{F9166515-BDAB-436E-8E14-EC3551C80EB1}.Release|Any CPU.ActiveCfg = Release|x86
+		{F9166515-BDAB-436E-8E14-EC3551C80EB1}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{F9166515-BDAB-436E-8E14-EC3551C80EB1}.Release|Mixed Platforms.Build.0 = Release|x86
 		{F9166515-BDAB-436E-8E14-EC3551C80EB1}.Release|x86.ActiveCfg = Release|x86
 		{F9166515-BDAB-436E-8E14-EC3551C80EB1}.Release|x86.Build.0 = Release|x86
+		{0F432055-3CE9-431A-8990-E0918AF6B90C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F432055-3CE9-431A-8990-E0918AF6B90C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F432055-3CE9-431A-8990-E0918AF6B90C}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{0F432055-3CE9-431A-8990-E0918AF6B90C}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{0F432055-3CE9-431A-8990-E0918AF6B90C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0F432055-3CE9-431A-8990-E0918AF6B90C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F432055-3CE9-431A-8990-E0918AF6B90C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F432055-3CE9-431A-8990-E0918AF6B90C}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{0F432055-3CE9-431A-8990-E0918AF6B90C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{0F432055-3CE9-431A-8990-E0918AF6B90C}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

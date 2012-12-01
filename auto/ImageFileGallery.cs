@@ -9,7 +9,7 @@ using Emgu.CV.Structure;
 
 namespace auto
 {
-    class ImageFileGallery : IEnumerable<Image<Bgr, Byte>>
+    public class ImageFileGallery : IEnumerable<Image<Bgr, Byte>>
     {
         private readonly string[] _dirContent;
         private int _idx = 0;
@@ -28,6 +28,11 @@ namespace auto
         {
             _dirContent = Directory.GetFiles(directory);
         }
+
+		public string GetUri()
+		{
+			return _dirContent[_idx];
+		}
 
         public Image<Bgr, byte> GetImage()
         {

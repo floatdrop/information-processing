@@ -1,0 +1,9 @@
+﻿<Window x:Class="Razmetka.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="480" Width="640" PreviewKeyDown="Window_PreviewKeyDown_2" MaxWidth="640" MinWidth="640" MaxHeight="480" MinHeight="480">
+    <Grid PreviewMouseMove="Grid_PreviewMouseMove_1" PreviewMouseLeftButtonDown="Grid_PreviewMouseLeftButtonDown_1" PreviewMouseLeftButtonUp="Grid_PreviewMouseLeftButtonUp_1" PreviewMouseDown="Grid_PreviewMouseDown_1" MouseLeave="Grid_MouseLeave_1">
+        <Image Name="im" Width="640" Height="480"/>
+        <Image Name="mask" Width="640" Height="480"/>
+    </Grid>
+</Window>
