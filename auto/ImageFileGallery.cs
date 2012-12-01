@@ -34,10 +34,15 @@ namespace auto
 			return _dirContent[_idx];
 		}
 
-        public Image<Bgr, byte> GetImage()
-        {
-            return new Image<Bgr, byte>(_dirContent[_idx]);
-        }
+		public Image<Bgr, byte> GetImage()
+		{
+			return new Image<Bgr, byte>(_dirContent[_idx]);
+		}
+
+		public Image<Hls, Double> GetImageHls()
+		{
+			return new Image<Hls, Double>(_dirContent[_idx]);
+		}
 
         public void MoveRight()
         {
