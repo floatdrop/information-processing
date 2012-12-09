@@ -30,13 +30,19 @@ namespace auto
 		private void UpdateResearchInfo()
 		{
 			//UpdateResearchInfoByMovingDetection();
-			UpdateResearchInfoByMouseColorFinding();
+			EdgeDetect();
 		}
 
 		private void UpdateResearchInfoByMouseColorFinding()
 		{
 			Image<Bgr, byte> currentImage = _imgCollection.GetImage();
 			_dataImage = currentImage.Erode(3); //.Convert<Bgr, byte>();
+		}
+
+		private void EdgeDetect()
+		{
+			Image<Bgr, byte> currentImage = _imgCollection.GetImage();
+			_dataImage = BlobDetector.FindBlobs(currentImage);
 		}
 
 		private void UpdateResearchInfoByMovingDetection()
