@@ -38,10 +38,10 @@ namespace auto
 			for (int i = 0; i < 3; i++)
 				edges[i] = source[i].Canny(new Gray(100), new Gray(100));
 			var distTransformed = new Image<Gray, float>(source.Width, source.Height);
-			var grayEdges = edges.Convert<Gray, byte>();
+			var grayEdges = edges.Convert<Gray, byte>().Not();
 			CvInvoke.cvDistTransform(grayEdges.Ptr, distTransformed.Ptr, DIST_TYPE.CV_DIST_L2, 3, new[] { 1f, 1f }, IntPtr.Zero);
-			var byteDist = distTransformed.Mul(255);//.ThresholdBinary(new Gray(2), new Gray(255));
-			return byteDist.Convert<Bgr, byte>();
+			var byteDist = distTransformed.ThresholdBinaryInv(new Gray(2), new Gray(255)).Convert<Gray, byte>();
+			//return byteDist.Convert<Bgr, byte>();
 			Image<Gray, byte> mask = new Image<Gray, byte>(byteDist.Width + 2, byteDist.Height + 2);
 			mask.ROI = new Rectangle(1,1,byteDist.Width, byteDist.Height);
 			CvInvoke.cvCopy(byteDist, mask, IntPtr.Zero);
@@ -52,7 +52,7 @@ namespace auto
 			{
 				for (int j = 0; j < edges.Height; j++)
 				{
-					if (edges.Data[j, i, 0] == 0)
+					if (mask.Data[j, i, 0] == 0)
 					{
 						var comp = new MCvConnectedComp();
 						CvInvoke.cvFloodFill(
