@@ -17,7 +17,7 @@ namespace auto
 		private static BlobTrackerAuto<Bgr> _tracker = new BlobTrackerAuto<Bgr>();
 		private static Random Rand = new Random(100);
 
-		private static void TrackBlobs(Image<Bgr, Byte> frame)
+		private static void TrackBlobs(Image<Bgr, Byte> frame, Image<Bgr, Byte> drawOn)
 		{
 			frame._SmoothGaussian(3); //filter out noises
 			_detector.Update(frame);
@@ -25,8 +25,8 @@ namespace auto
 			_tracker.Process(frame, forgroundMask);
 			foreach (MCvBlob blob in _tracker)
 			{
-				frame.Draw(Rectangle.Round(blob), new Bgr(255.0, 255.0, 255.0), 2);
-				frame.Draw(blob.ID.ToString(), ref _font, Point.Round(blob.Center), new Bgr(255.0, 255.0, 255.0));
+				drawOn.Draw(Rectangle.Round(blob), new Bgr(255.0, 255.0, 255.0), 2);
+				drawOn.Draw(blob.ID.ToString(), ref _font, Point.Round(blob.Center), new Bgr(255.0, 255.0, 255.0));
 			}
 		}
 
@@ -77,9 +77,9 @@ namespace auto
 					}
 				}
 			}
-			
-			TrackBlobs(edges);
-			return edges;
+
+			TrackBlobs(edges, source);
+			return source;
 		}
 
 		private static void ReplaceColors(Image<Bgr, byte> edges, Rectangle roi)
