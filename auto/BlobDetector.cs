@@ -37,15 +37,15 @@ namespace auto
 			// source.SmoothMedian(5);
 			for (int i = 0; i < 3; i++)
 				edges[i] = source[i].Canny(new Gray(100), new Gray(100));
-			var grayEdges = edges.Convert<Gray, byte>();
 			var distTransformed = new Image<Gray, float>(source.Width, source.Height);
+			var grayEdges = edges.Convert<Gray, byte>();
 			CvInvoke.cvDistTransform(grayEdges.Ptr, distTransformed.Ptr, DIST_TYPE.CV_DIST_L2, 3, new[] { 1f, 1f }, IntPtr.Zero);
-			distTransformed.ThresholdBinary(new Gray(2), new Gray(255));
-			var byteDist = distTransformed.Convert<Gray, byte>();
-			var mask = new Image<Gray, byte>(distTransformed.Width + 2, distTransformed.Height + 2);
-			mask.ROI = new Rectangle(1, 1, distTransformed.Width, distTransformed.Height);
-			mask.Copy(byteDist);
-			mask.ROI = new Rectangle(0, 0, distTransformed.Width+2, distTransformed.Height+2);
+			var byteDist = distTransformed.Mul(255);//.ThresholdBinary(new Gray(2), new Gray(255));
+			return byteDist.Convert<Bgr, byte>();
+			Image<Gray, byte> mask = new Image<Gray, byte>(byteDist.Width + 2, byteDist.Height + 2);
+			mask.ROI = new Rectangle(1,1,byteDist.Width, byteDist.Height);
+			CvInvoke.cvCopy(byteDist, mask, IntPtr.Zero);
+			mask.ROI = new Rectangle(0, 0, byteDist.Width+2, byteDist.Height+2);
 			edges = grayEdges.Convert<Bgr, byte>();
 			/* Flood fill */
 			for (int i = 0; i < edges.Width; i++)
@@ -63,7 +63,7 @@ namespace auto
 							new MCvScalar(0, 0, 0),  // Up
 							out comp,
 							Emgu.CV.CvEnum.CONNECTIVITY.EIGHT_CONNECTED,
-							Emgu.CV.CvEnum.FLOODFILL_FLAG.DEFAULT, 
+							Emgu.CV.CvEnum.FLOODFILL_FLAG.DEFAULT,
 							mask.Ptr
 						);
 						
