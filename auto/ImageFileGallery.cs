@@ -54,6 +54,11 @@ namespace auto
             _idx = _idx == 0 ? _dirContent.Length - 1 : _idx - 1;
         }
 
+        public void GoTo(int fileIdx)
+        {
+            _idx = fileIdx % _dirContent.Length;
+        }
+
         public IEnumerator<Image<Bgr, byte>> GetEnumerator()
         {
             return new ImageFileEnumerator(_dirContent);

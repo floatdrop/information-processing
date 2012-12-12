@@ -119,7 +119,7 @@ namespace auto
 			Tuple.Create(0, -1)
 		};
 
-	    private const float BlobThreshold = 2;
+	    private const float BlobThreshold = 4;
 
         private static void MarkArea(int[,] marks, Image<Gray, float> distTransformed, int x, int y, int currentMark)
 		{
@@ -154,6 +154,8 @@ namespace auto
         public int RSum;
         public int GSum;
         public int BSum;
+
+        public double Max = 0;
 
         public int PixelCount;
 
