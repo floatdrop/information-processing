@@ -17,7 +17,7 @@ namespace auto
 		private static BlobTrackerAuto<Bgr> _tracker = new BlobTrackerAuto<Bgr>();
 		private static Random Rand = new Random(100);
 
-		private static void TrackBlobs(Image<Bgr, Byte> frame)
+		private static void TrackBlobs(Image<Bgr, Byte> frame, Image<Bgr, Byte> drawOn)
 		{
 			frame._SmoothGaussian(3); //filter out noises
 			_detector.Update(frame);
@@ -25,8 +25,8 @@ namespace auto
 			_tracker.Process(frame, forgroundMask);
 			foreach (MCvBlob blob in _tracker)
 			{
-				frame.Draw(Rectangle.Round(blob), new Bgr(255.0, 255.0, 255.0), 2);
-				frame.Draw(blob.ID.ToString(), ref _font, Point.Round(blob.Center), new Bgr(255.0, 255.0, 255.0));
+				drawOn.Draw(Rectangle.Round(blob), new Bgr(255.0, 255.0, 255.0), 2);
+				drawOn.Draw(blob.ID.ToString(), ref _font, Point.Round(blob.Center), new Bgr(255.0, 255.0, 255.0));
 			}
 		}
 
@@ -48,6 +48,9 @@ namespace auto
 			mask.ROI = new Rectangle(0, 0, byteDist.Width+2, byteDist.Height+2);
 			edges = grayEdges.Convert<Bgr, byte>();
 			/* Flood fill */
+
+			var remapColorDict = new Dictionary<Bgr, Bgr>();
+
 			for (int i = 0; i < edges.Width; i++)
 			{
 				for (int j = 0; j < edges.Height; j++)
@@ -57,8 +60,8 @@ namespace auto
 						var comp = new MCvConnectedComp();
 						CvInvoke.cvFloodFill(
 							edges.Ptr, 
-							new Point(i, j), 
-							GetColor(), // Color
+							new Point(i, j),
+							new MCvScalar(200, 200, 200, 0), // Color
 							new MCvScalar(0, 0, 0), // Lo
 							new MCvScalar(0, 0, 0),  // Up
 							out comp,
@@ -67,15 +70,32 @@ namespace auto
 							mask.Ptr
 						);
 						
-						/*if (comp.area < 10000)
-							image = image_copy.Copy();*/
-						
+						if (comp.area > 400 && comp.area < 2500)
+						{
+							ReplaceColors(edges, comp.rect);
+						}
 					}
 				}
 			}
 
-			TrackBlobs(edges);
-			return edges;
+			TrackBlobs(edges, source);
+			return source;
+		}
+
+		private static void ReplaceColors(Image<Bgr, byte> edges, Rectangle roi)
+		{
+			for (int i = roi.Left; i < roi.Right; i++)
+			{
+				for (int j = roi.Top; j < roi.Bottom; j++)
+				{
+					if (edges.Data[j, i, 0] == 200)
+					{
+						edges.Data[j, i, 0] = 255;
+						edges.Data[j, i, 1] = 0;
+						edges.Data[j, i, 2] = 0;
+					}
+				}
+			}
 		}
 
 		private static MCvScalar GetColor()
