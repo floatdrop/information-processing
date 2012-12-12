@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
-using System.Text;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
@@ -13,12 +11,14 @@ namespace auto
 	{
 		public static Image<Bgr, byte> FindBlobs(Image<Bgr, byte> source)
 		{
-            var graySource = source.Convert<Gray, byte>();
-            var median = graySource.SmoothMedian(7);
-            var edges = median.Canny(new Gray(100), new Gray(25)).Not();
-            var distTransformed = new Image<Gray, float>(graySource.Width, graySource.Height);
-            CvInvoke.cvDistTransform(edges.Ptr, distTransformed.Ptr, DIST_TYPE.CV_DIST_L2, 3, new[] { 1f, 1f }, IntPtr.Zero);
-            var image = SuperCoolEdgeMedianSmooth(source, MarkBlobs(distTransformed));
+			//source._EqualizeHist();
+			var edges = new Image<Bgr, byte>(source.Width, source.Height);
+			for (int i = 0; i < 3; i++)
+				edges[i] = source[i].Canny(new Gray(100), new Gray(150));
+			var grayEdges = edges.Convert<Gray, byte>();
+			var distTransformed = new Image<Gray, float>(source.Width, source.Height);
+			CvInvoke.cvDistTransform(grayEdges.Ptr, distTransformed.Ptr, DIST_TYPE.CV_DIST_L2, 3, new[] { 1f, 1f }, IntPtr.Zero);
+			var image = grayEdges; // SuperCoolEdgeMedianSmooth(source, MarkBlobs(distTransformed));
             return image.Convert<Bgr, Byte>();
 		}
 
