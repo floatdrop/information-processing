@@ -12,13 +12,14 @@ namespace auto
 		public static Image<Bgr, byte> FindBlobs(Image<Bgr, byte> source)
 		{
 			//source._EqualizeHist();
+
 			var edges = new Image<Bgr, byte>(source.Width, source.Height);
 			for (int i = 0; i < 3; i++)
-				edges[i] = source[i].Canny(new Gray(100), new Gray(150));
-			var grayEdges = edges.Convert<Gray, byte>();
+				edges[i] = source[i].Canny(new Gray(50), new Gray(100));
+			var grayEdges = edges.Convert<Gray, byte>().Not();
 			var distTransformed = new Image<Gray, float>(source.Width, source.Height);
 			CvInvoke.cvDistTransform(grayEdges.Ptr, distTransformed.Ptr, DIST_TYPE.CV_DIST_L2, 3, new[] { 1f, 1f }, IntPtr.Zero);
-			var image = grayEdges; // SuperCoolEdgeMedianSmooth(source, MarkBlobs(distTransformed));
+			var image = SuperCoolEdgeMedianSmooth(source, MarkBlobs(distTransformed));
             return image.Convert<Bgr, Byte>();
 		}
 
@@ -119,7 +120,7 @@ namespace auto
 			Tuple.Create(0, -1)
 		};
 
-	    private const float BlobThreshold = 4;
+	    private const float BlobThreshold = 2;
 
         private static void MarkArea(int[,] marks, Image<Gray, float> distTransformed, int x, int y, int currentMark)
 		{
