@@ -78,8 +78,8 @@ namespace auto
 				}
 			}
 
-			TrackBlobs(edges, source);
-			return source;
+			//TrackBlobs(edges, source);
+			return edges;
 		}
 
 		private static void ReplaceColors(Image<Bgr, byte> edges, Rectangle roi)
