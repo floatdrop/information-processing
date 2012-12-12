@@ -30,18 +30,24 @@ namespace auto
 			}
 		}
 
-		public static Image<Bgr, byte> FindBlobs(Image<Bgr, byte> source)
+	    private const double ScaleFactor = 1;
+        private static Image<Bgr, byte> GaussEdgeDetector(Image<Bgr, byte> source)
+        {
+              return source.SmoothGaussian(7).AbsDiff(source.SmoothGaussian(5)).Mul(20).ThresholdToZero(new Bgr(50, 50, 50));
+        }
+
+	    public static Image<Bgr, byte> FindBlobs(Image<Bgr, byte> source)
 		{
 			//source._EqualizeHist();
+            //source = source.Resize(ScaleFactor, INTER.CV_INTER_AREA);
 			var edges = new Image<Bgr, byte>(source.Width, source.Height);
-			// source.SmoothMedian(5);
 			for (int i = 0; i < 3; i++)
-				edges[i] = source[i].Canny(new Gray(100), new Gray(100));
-			var distTransformed = new Image<Gray, float>(source.Width, source.Height);
+				edges[i] = source[i].Canny(new Gray(100), new Gray(80));
+            edges = edges.Dilate(2).Erode(2);
+            var distTransformed = new Image<Gray, float>(source.Width, source.Height);
 			var grayEdges = edges.Convert<Gray, byte>().Not();
 			CvInvoke.cvDistTransform(grayEdges.Ptr, distTransformed.Ptr, DIST_TYPE.CV_DIST_L2, 3, new[] { 1f, 1f }, IntPtr.Zero);
 			var byteDist = distTransformed.ThresholdBinaryInv(new Gray(2), new Gray(255)).Convert<Gray, byte>();
-			//return byteDist.Convert<Bgr, byte>();
 			Image<Gray, byte> mask = new Image<Gray, byte>(byteDist.Width + 2, byteDist.Height + 2);
 			mask.ROI = new Rectangle(1,1,byteDist.Width, byteDist.Height);
 			CvInvoke.cvCopy(byteDist, mask, IntPtr.Zero);
@@ -86,14 +92,30 @@ namespace auto
 			return edges;
 		}
 
+	    private static void RemoveNonWhitePixels(Image<Bgr, byte> edges)
+	    {
+	        for (int i = 0; i < edges.Width; i++)
+	        {
+	            for (int j = 0; j < edges.Height; j++)
+	            {
+	                if (edges.Data[j,i,0] <= 100 || edges.Data[j,i,1] <= 100 || edges.Data[j,i,2] <= 100)
+	                {
+	                    edges.Data[j, i, 0] = 0;
+                        edges.Data[j, i, 1] = 0;
+                        edges.Data[j, i, 2] = 0;
+	                }
+	            }
+	        }
+	    }
+
 	    private static bool FilledAreaDimesnionsIsMousable(MCvConnectedComp comp)
 	    {
-	        return comp.rect.Width > 10 && comp.rect.Width < 300 && comp.rect.Height > 10 && comp.rect.Height < 300;
+            return comp.rect.Width > 10 * ScaleFactor && comp.rect.Width < 300 * ScaleFactor && comp.rect.Height > 10 * ScaleFactor && comp.rect.Height < 300 * ScaleFactor;
 	    }
 
 	    private static bool FilledAreaIsMousable(MCvConnectedComp comp)
 	    {
-	        return comp.area > 400 && comp.area < 2500;
+            return comp.area > 400 * ScaleFactor && comp.area < 2500 * ScaleFactor;
 	    }
 
 	    private static void ReplaceColors(Image<Bgr, byte> edges, Rectangle roi)
