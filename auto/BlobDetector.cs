@@ -18,8 +18,8 @@ namespace auto
             var edges = median.Canny(new Gray(100), new Gray(25)).Not();
             var distTransformed = new Image<Gray, float>(graySource.Width, graySource.Height);
             CvInvoke.cvDistTransform(edges.Ptr, distTransformed.Ptr, DIST_TYPE.CV_DIST_L2, 3, new[] { 1f, 1f }, IntPtr.Zero);
-            var image = GenerageImage(MarkBlobs(distTransformed));
-            return image;
+            var image = SuperCoolEdgeMedianSmooth(source, MarkBlobs(distTransformed));
+            return image.Convert<Bgr, Byte>();
 		}
 
 		private static Image<Bgr, byte> GaussEdgeDetector(Image<Bgr, byte> source)
@@ -32,7 +32,48 @@ namespace auto
 			return source.SmoothMedian(7).AbsDiff(source.SmoothMedian(5)).Mul(20).ThresholdToZero(new Bgr(50, 50, 50));
 		}
 
-		private static Random Rand = new Random(100);
+        private static Image<Bgr, Byte> SuperCoolEdgeMedianSmooth(Image<Bgr, Byte> source, int[,] marks)
+        {
+            var blobToColorSum = new Dictionary<int, BlobInfo>();
+
+            for (int y = 0; y < marks.GetLength(0); y++)
+            {
+                for (int x = 0; x < marks.GetLength(1); x++)
+                {
+                    if(!blobToColorSum.ContainsKey(marks[y, x]))
+                    {
+                        blobToColorSum.Add(marks[y, x], new BlobInfo(source[y, x]));
+                    }
+                    else
+                    {
+                        blobToColorSum[marks[y, x]].AddStat(source[y, x]);
+                    }
+                }
+            }
+
+            var result = new Image<Bgr, byte>(source.Width, source.Height);
+
+            var avg = new Dictionary<int, Bgr>();
+
+            foreach (var markBlobPair in blobToColorSum)
+            {
+                avg[markBlobPair.Key] = markBlobPair.Value.GetAverage();
+            }
+
+
+            for (int y = 0; y < marks.GetLength(0); y++)
+            {
+                for (int x = 0; x < marks.GetLength(1); x++)
+                {
+                    if (marks[y, x] > 0)
+                        result[y, x] = avg[marks[y, x]];
+                }
+            }
+
+            return result;
+        }
+
+	    private static Random Rand = new Random(100);
 
 		private static Image<Bgr, byte> GenerageImage(int[,] marks)
 		{
@@ -85,30 +126,58 @@ namespace auto
             if (distTransformed[y, x].Intensity < BlobThreshold)
                 return;
 
-			var stack = new Stack<Tuple<int, int>>();
-			stack.Push(Tuple.Create(x, y));
+			var queue = new Queue<Tuple<int, int>>();
+            queue.Enqueue(Tuple.Create(x, y));
+            marks[y, x] = currentMark;
 				
-			while (stack.Count > 0)
+			while (queue.Count > 0)
 			{
-				var xy = stack.Pop();
-				marks[xy.Item2, xy.Item1] = currentMark;
+				var xy = queue.Dequeue();
 				foreach (var move in PossibleMoves)
 				{
 					var newX = xy.Item1 + move.Item1;
 					var newY = xy.Item2 + move.Item2;
 					if(newX < 0 || newX >= distTransformed.Width || newY < 0 || newY >= distTransformed.Height)
-						return;
+						continue;
                     if (marks[newY, newX] == 0 && distTransformed[newY, newX].Intensity >= BlobThreshold)
-						stack.Push(Tuple.Create(newX, newY));
+                    {
+                        marks[newY, newX] = currentMark;
+						queue.Enqueue(Tuple.Create(newX, newY));
+                    }
 				}
 			}
-		 }
-
-		private static double Distance(Bgr color1, Bgr color2)
-		{
-			return Math.Pow(color1.Blue - color2.Blue, 2) + 
-				   Math.Pow(color1.Green - color2.Green, 2) +
-			       Math.Pow(color1.Red - color2.Red, 2);
 		}
 	}
+
+    class BlobInfo
+    {
+        public int RSum;
+        public int GSum;
+        public int BSum;
+
+        public int PixelCount;
+
+        public BlobInfo(Bgr color)
+        {
+            RSum = (int)color.Red;
+            GSum = (int)color.Green;
+            BSum = (int)color.Blue;
+
+            PixelCount = 1;
+        }
+
+        public void AddStat(Bgr color)
+        {
+            RSum += (int)color.Red;
+            GSum += (int)color.Green;
+            BSum += (int)color.Blue;
+
+            PixelCount++;
+        }
+
+        public Bgr GetAverage()
+        {
+            return new Bgr(BSum*1.0/PixelCount, GSum*1.0/PixelCount, RSum*1.0/PixelCount);
+        }
+    }
 }
