@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using Emgu.CV;
@@ -12,12 +13,13 @@ namespace auto
 	{
 		public static Image<Bgr, byte> FindBlobs(Image<Bgr, byte> source)
 		{
-			var graySource = source.Convert<Gray, byte>();
-			// var diff = GaussEdgeDetector(source);
-			// var image = GenerageImage(MarkBlobs(source.SmoothMedian(7)));
-			var median = graySource.SmoothMedian(7);
-			var edges = median.Canny(new Gray(100), new Gray(25)).Convert<Bgr, byte>();
-			return edges;
+            var graySource = source.Convert<Gray, byte>();
+            var median = graySource.SmoothMedian(7);
+            var edges = median.Canny(new Gray(100), new Gray(25)).Not();
+            var distTransformed = new Image<Gray, float>(graySource.Width, graySource.Height);
+            CvInvoke.cvDistTransform(edges.Ptr, distTransformed.Ptr, DIST_TYPE.CV_DIST_L2, 3, new[] { 1f, 1f }, IntPtr.Zero);
+            var image = GenerageImage(MarkBlobs(distTransformed));
+            return image;
 		}
 
 		private static Image<Bgr, byte> GaussEdgeDetector(Image<Bgr, byte> source)
@@ -36,6 +38,7 @@ namespace auto
 		{
 			var image = new Image<Bgr, byte>(marks.GetLength(1), marks.GetLength(0));
 			var colors = new Dictionary<int, Bgr>();
+            colors.Add(0, new Bgr(0, 0, 0));
 
 			for (int y = 0; y < marks.GetLength(0); y++)
 			{
@@ -51,17 +54,17 @@ namespace auto
 			return image;
 		}
 
-		private static int[,] MarkBlobs(Image<Bgr, byte> source)
+		private static int[,] MarkBlobs(Image<Gray, float> distTransformed)
 		{
-			var marks = new int[source.Height, source.Width];
+            var marks = new int[distTransformed.Height, distTransformed.Width];
 			int currentMark = 1;
 
-			for (int x = 0; x < source.Width; x ++)
+            for (int x = 0; x < distTransformed.Width; x++)
 			{
-				for (int y = 0; y < source.Height; y++)
+                for (int y = 0; y < distTransformed.Height; y++)
 				{
 					if (marks[y, x] == 0)
-						MarkArea(marks, source, x, y, currentMark++);
+                        MarkArea(marks, distTransformed, x, y, currentMark++);
 				}
 			}
 			return marks;
@@ -75,8 +78,13 @@ namespace auto
 			Tuple.Create(0, -1)
 		};
 
-		private static void MarkArea(int[,] marks, Image<Bgr, byte> source, int x, int y, int currentMark)
+	    private const float BlobThreshold = 2;
+
+        private static void MarkArea(int[,] marks, Image<Gray, float> distTransformed, int x, int y, int currentMark)
 		{
+            if (distTransformed[y, x].Intensity < BlobThreshold)
+                return;
+
 			var stack = new Stack<Tuple<int, int>>();
 			stack.Push(Tuple.Create(x, y));
 				
@@ -88,9 +96,9 @@ namespace auto
 				{
 					var newX = xy.Item1 + move.Item1;
 					var newY = xy.Item2 + move.Item2;
-					if(newX < 0 || newX >= source.Width || newY < 0 || newY >= source.Height)
+					if(newX < 0 || newX >= distTransformed.Width || newY < 0 || newY >= distTransformed.Height)
 						return;
-					if (marks[newY, newX] == 0 && Distance(source[xy.Item2, xy.Item1], source[newY, newX]) < 50)
+                    if (marks[newY, newX] == 0 && distTransformed[newY, newX].Intensity >= BlobThreshold)
 						stack.Push(Tuple.Create(newX, newY));
 				}
 			}
