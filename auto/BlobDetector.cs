@@ -39,11 +39,9 @@ namespace auto
 	    public static Image<Bgr, byte> FindBlobs(Image<Bgr, byte> source)
 		{
 			//source._EqualizeHist();
-            //source = source.Resize(ScaleFactor, INTER.CV_INTER_AREA);
-			var edges = new Image<Bgr, byte>(source.Width, source.Height);
-			for (int i = 0; i < 3; i++)
-				edges[i] = source[i].Canny(new Gray(100), new Gray(80));
-            edges = edges.Dilate(2).Erode(2);
+            source = source.Resize(ScaleFactor, INTER.CV_INTER_CUBIC);
+	        var edges = source.Canny(new Bgr(100, 100, 100), new Bgr(100, 100, 100));
+            //edges = edges.Dilate(2).Erode(2);
             var distTransformed = new Image<Gray, float>(source.Width, source.Height);
 			var grayEdges = edges.Convert<Gray, byte>().Not();
 			CvInvoke.cvDistTransform(grayEdges.Ptr, distTransformed.Ptr, DIST_TYPE.CV_DIST_L2, 3, new[] { 1f, 1f }, IntPtr.Zero);
@@ -54,8 +52,6 @@ namespace auto
 			mask.ROI = new Rectangle(0, 0, byteDist.Width+2, byteDist.Height+2);
 			edges = grayEdges.Convert<Bgr, byte>();
 			/* Flood fill */
-
-			var remapColorDict = new Dictionary<Bgr, Bgr>();
 
 			for (int i = 0; i < edges.Width; i++)
 			{
@@ -71,7 +67,7 @@ namespace auto
 							new MCvScalar(0, 0, 0), // Lo
 							new MCvScalar(0, 0, 0),  // Up
 							out comp,
-							Emgu.CV.CvEnum.CONNECTIVITY.EIGHT_CONNECTED,
+							Emgu.CV.CvEnum.CONNECTIVITY.FOUR_CONNECTED,
 							Emgu.CV.CvEnum.FLOODFILL_FLAG.DEFAULT,
 							mask.Ptr
 						);
@@ -92,25 +88,13 @@ namespace auto
 			return edges;
 		}
 
-	    private static void RemoveNonWhitePixels(Image<Bgr, byte> edges)
-	    {
-	        for (int i = 0; i < edges.Width; i++)
-	        {
-	            for (int j = 0; j < edges.Height; j++)
-	            {
-	                if (edges.Data[j,i,0] <= 100 || edges.Data[j,i,1] <= 100 || edges.Data[j,i,2] <= 100)
-	                {
-	                    edges.Data[j, i, 0] = 0;
-                        edges.Data[j, i, 1] = 0;
-                        edges.Data[j, i, 2] = 0;
-	                }
-	            }
-	        }
-	    }
-
 	    private static bool FilledAreaDimesnionsIsMousable(MCvConnectedComp comp)
 	    {
-            return comp.rect.Width > 10 * ScaleFactor && comp.rect.Width < 300 * ScaleFactor && comp.rect.Height > 10 * ScaleFactor && comp.rect.Height < 300 * ScaleFactor;
+            return 
+                comp.rect.Width > 25 * ScaleFactor && 
+                comp.rect.Width < 300 * ScaleFactor && 
+                comp.rect.Height > 25 * ScaleFactor && 
+                comp.rect.Height < 300 * ScaleFactor;
 	    }
 
 	    private static bool FilledAreaIsMousable(MCvConnectedComp comp)
