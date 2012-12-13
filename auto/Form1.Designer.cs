@@ -83,7 +83,7 @@ namespace auto
             this.StepBack.TabIndex = 5;
             this.StepBack.Text = "←";
             this.StepBack.UseVisualStyleBackColor = true;
-            this.StepBack.Click += new System.EventHandler(this.StepBack_Click);
+            this.StepBack.Click += new System.EventHandler(this.StepBackClick);
             // 
             // StepRight
             // 
@@ -95,7 +95,7 @@ namespace auto
             this.StepRight.TabIndex = 6;
             this.StepRight.Text = "→";
             this.StepRight.UseVisualStyleBackColor = true;
-            this.StepRight.Click += new System.EventHandler(this.StepRight_Click);
+            this.StepRight.Click += new System.EventHandler(this.StepRightClick);
             // 
             // tableLayoutPanel1
             // 
@@ -128,7 +128,7 @@ namespace auto
             this.PlayStop.TabIndex = 8;
             this.PlayStop.Text = "Play";
             this.PlayStop.UseVisualStyleBackColor = true;
-            this.PlayStop.Click += new System.EventHandler(this.PlayStop_Click);
+            this.PlayStop.Click += new System.EventHandler(this.PlayStopClick);
             // 
             // tableLayoutPanel2
             // 
@@ -163,7 +163,7 @@ namespace auto
             this.FrameBar.Name = "FrameBar";
             this.FrameBar.Size = new System.Drawing.Size(475, 32);
             this.FrameBar.TabIndex = 10;
-            this.FrameBar.ValueChanged += new System.EventHandler(this.FrameBar_ValueChanged);
+            this.FrameBar.ValueChanged += new System.EventHandler(this.FrameBarValueChanged);
             // 
             // DelayLabel
             // 
