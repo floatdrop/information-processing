@@ -17,7 +17,7 @@ namespace auto
 
 		public Form1()
 		{
-            _imgCollection.GoTo(710);
+            _imgCollection.GoTo(720);
 			InitializeComponent();
 			_playTimer = new DispatcherTimer(new TimeSpan(0, 0, 0, 0, 100), DispatcherPriority.Normal, StepRight_Click,
 			                                 Dispatcher.CurrentDispatcher);

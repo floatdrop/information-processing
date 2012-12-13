@@ -79,7 +79,7 @@ namespace auto
 			}
 
 			TrackBlobs(edges, source);
-			return source;
+			return edges;
 		}
 
 		private static void ReplaceColors(Image<Bgr, byte> edges, Rectangle roi)
