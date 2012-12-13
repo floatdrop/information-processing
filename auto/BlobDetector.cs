@@ -78,7 +78,7 @@ namespace auto
 				}
 			}
 
-			TrackBlobs(edges, source);
+			//TrackBlobs(edges, source);
 			return edges;
 		}
 
