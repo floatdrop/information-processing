@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Windows.Forms;
 using System.Windows.Threading;
 using Emgu.CV;
@@ -18,12 +19,12 @@ namespace auto
 		public Form1()
 		{
 			InitializeComponent();
-			_playTimer = new DispatcherTimer(new TimeSpan(0, 0, 0, 0, 100), DispatcherPriority.Normal, StepRight_Click,
+		    FrameBar.Minimum = 0;
+            FrameBar.Maximum = _imgCollection.Count();
+            _playTimer = new DispatcherTimer(new TimeSpan(0, 0, 0, 0, 10), DispatcherPriority.Normal, StepRight_Click,
 			                                 Dispatcher.CurrentDispatcher);
 			_playTimer.Stop();
-			UpdateResearchInfo();
-			UpdateImage();
-			UpdateFrameCount();
+		    FrameBar_ValueChanged(this, null);
 			ImageBox.Focus();
 		}
 
@@ -39,20 +40,14 @@ namespace auto
 			_dataImage = currentImage.Erode(3); //.Convert<Bgr, byte>();
 		}
 
-		private void EdgeDetect()
+        private readonly Stopwatch _sw = new Stopwatch();
+        private void EdgeDetect()
 		{
-			Image<Bgr, byte> currentImage = _imgCollection.GetImage();
+            Image<Bgr, byte> currentImage = _imgCollection.GetImage();
+            _sw.Restart();
 			_dataImage = BlobDetector.FindBlobs(currentImage);
-		}
-
-		private void UpdateResearchInfoByMovingDetection()
-		{
-			const double partSize = 0.2;
-			Image<Bgr, byte> tempImage = _oldImage;
-			Image<Bgr, byte> currentImage = _imgCollection.GetImage();
-			Image<Bgr, byte> newImage = _oldImage.Mul(1 - partSize).Add(currentImage.Mul(partSize));
-			_dataImage = newImage.AbsDiff(tempImage).Mul(10).ThresholdBinary(new Bgr(80, 100, 100), new Bgr(255, 255, 255));
-			_oldImage = newImage;
+            _sw.Stop();
+		    DelayLabel.Text = String.Format("{0}ms", _sw.ElapsedMilliseconds);
 		}
 
 		private void UpdateImage()
@@ -64,17 +59,13 @@ namespace auto
 		private void StepRight_Click(object sender, EventArgs e)
 		{
 			_imgCollection.MoveRight();
-			UpdateResearchInfo();
-			UpdateImage();
-			UpdateFrameCount();
+			FrameBar.Value = _imgCollection.CurrentIndex();
 		}
 
 		private void StepBack_Click(object sender, EventArgs e)
 		{
 			_imgCollection.MoveLeft();
-			UpdateResearchInfo();
-			UpdateImage();
-			UpdateFrameCount();
+			FrameBar.Value = _imgCollection.CurrentIndex();
 		}
 
 
@@ -97,5 +88,13 @@ namespace auto
 			}
 			_playing = !_playing;
 		}
+
+        private void FrameBar_ValueChanged(object sender, EventArgs e)
+        {
+            _imgCollection.GoTo(FrameBar.Value);
+            UpdateResearchInfo();
+            UpdateImage();
+            UpdateFrameCount();
+        }
 	}
 }

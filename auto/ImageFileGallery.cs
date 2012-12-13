@@ -100,5 +100,10 @@ namespace auto
                 get { return Current; }
             }
         }
+
+        public void GoTo(int i)
+        {
+            _idx = i;
+        }
     }
 }

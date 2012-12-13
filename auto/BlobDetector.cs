@@ -44,6 +44,7 @@ namespace auto
             //edges = edges.Dilate(2).Erode(2);
             var distTransformed = new Image<Gray, float>(source.Width, source.Height);
 			var grayEdges = edges.Convert<Gray, byte>().Not();
+	        return edges;
 			CvInvoke.cvDistTransform(grayEdges.Ptr, distTransformed.Ptr, DIST_TYPE.CV_DIST_L2, 3, new[] { 1f, 1f }, IntPtr.Zero);
 			var byteDist = distTransformed.ThresholdBinaryInv(new Gray(2), new Gray(255)).Convert<Gray, byte>();
 			Image<Gray, byte> mask = new Image<Gray, byte>(byteDist.Width + 2, byteDist.Height + 2);
