@@ -37,7 +37,7 @@ namespace auto
 
         public T Max()
         {
-            return _list[0].Value;
+            return _list[1].Value;
         }
 
         public T RemoveMax()

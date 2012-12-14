@@ -124,6 +124,8 @@ namespace auto
             queue.Enqueue(Tuple.Create(graphInfo.Start1, 0));
             queue.Enqueue(Tuple.Create(graphInfo.Start2, 0));
 
+            var used = new HashSet<MarkovState>();
+
             while (queue.Count > 0)
             {
                 var nodeLevel = queue.Dequeue();
@@ -133,16 +135,22 @@ namespace auto
                     continue;
                 }
 
-                foreach (var stateProb in nodeLevel.Item1.Obj.EventsProbability)
+                foreach (var stateLevel in nodeLevel.Item1.Obj.EventsProbability)
                 {
-                    if(!stateToNode.ContainsKey(stateProb.Key))
-                        stateToNode[stateProb.Key] = new Node<MarkovState>
-                            {
-                                Obj = stateProb.Key
-                            };
-                    var node = stateToNode[stateProb.Key];
 
-                    nodeLevel.Item1.AddEdge(node, stateProb.Value);
+                    if(!stateToNode.ContainsKey(stateLevel.Key))
+                        stateToNode[stateLevel.Key] = new Node<MarkovState>
+                            {
+                                Obj = stateLevel.Key
+                            };
+                    var node = stateToNode[stateLevel.Key];
+
+                    nodeLevel.Item1.AddEdge(node, stateLevel.Value);
+
+                    if (used.Contains(stateLevel.Key))
+                        continue;
+                    used.Add(stateLevel.Key);
+
                     queue.Enqueue(Tuple.Create(node, nodeLevel.Item2 + 1));
                 }
             }

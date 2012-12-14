@@ -12,36 +12,23 @@ namespace auto
         {
             var queue = new PriorityQueue<State<T>>();
             queue.Enqueue(1, new State<T>(input1, input2, 1, null));
-            var used = new HashSet<State<T>>();
 
             while (!queue.Empty)
             {
                 var state = queue.Dequeue();
-                if(used.Contains(state))
-                    continue;
-                used.Add(state);
 
                 if (state.FirstObjState == output && state.SecondObjState == output)
                     return GetWays(state);
 
-                foreach (var edge in state.FirstObjState.Edges.Where(edge => edge.To != state.SecondObjState || edge.To == output))
+                foreach (var firstEdge in state.FirstObjState.Edges)
                 {
-                    var newState = new State<T>(edge.To, state.SecondObjState, state.Probability * edge.Weight, state);
+                    foreach (var secondEdge in state.SecondObjState.Edges.Where(edge => edge.To != firstEdge.To || edge.To == output))
+                    {
+                        var newState = new State<T>(firstEdge.To, secondEdge.To,
+                                                    state.Probability*firstEdge.Weight*secondEdge.Weight, state);
 
-                    if (used.Contains(newState))
-                        continue;
-
-                    queue.Enqueue(newState.Probability, newState);
-                }
-
-                foreach (var edge in state.SecondObjState.Edges.Where(edge => edge.To != state.FirstObjState || edge.To == output))
-                {
-                    var newState = new State<T>(state.FirstObjState, edge.To, state.Probability * edge.Weight, state);
-
-                    if (used.Contains(newState))
-                        continue;
-
-                    queue.Enqueue(newState.Probability, newState);
+                        queue.Enqueue(newState.Probability, newState);
+                    }
                 }
             }
 

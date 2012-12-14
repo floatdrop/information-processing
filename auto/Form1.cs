@@ -44,6 +44,7 @@ namespace auto
             var events = BlobDetector.GetBlobEvents(currentImage);
             var ways = _chain.NextStep(events);
             _dataImage = currentImage;
+            DrawEvents(_dataImage, events, new Bgr(Color.Green));
             DrawPolyline(_dataImage, ways.Item1, new Bgr(Color.Blue));
             DrawPolyline(_dataImage, ways.Item2, new Bgr(Color.Red));
         }
@@ -53,6 +54,14 @@ namespace auto
             for(int i = 1; i < way.Count; i++)
             {
                 image.Draw(new LineSegment2D(Geometry.GetCenter(way[i].Coords), Geometry.GetCenter(way[i-1].Coords)), color, 3);
+            }
+        }
+
+        private void DrawEvents(Image<Bgr, Byte> image, List<Event> events, Bgr color)
+        {
+            foreach(var ev in events)
+            {
+                image.Draw(ev.EventCoords, color, 1);
             }
         }
 
