@@ -9,10 +9,10 @@ namespace auto
 {
     class MarkovChain
     {
-        private const double EmptyPenalty = 0.7;
+        private const double EmptyPenalty = 0.2;
         private const int MaxQueueSize = 6;
-        private const int MaxEmptySize = 6;
-        private const int OutputLength = 20;
+        private const int MaxEmptySize = 10;
+        private const int OutputLength = 50;
         public Queue<List<MarkovState>> States = new Queue<List<MarkovState>>();
         public MarkovState Mouse1;
         public MarkovState Mouse2;

@@ -14,13 +14,13 @@ namespace auto
 		private static readonly ImageFileGallery _imgCollection = new ImageFileGallery(DataFolder);
 		private readonly DispatcherTimer _playTimer;
 		private Image<Bgr, byte> _dataImage = new Image<Bgr, byte>(640, 480);
-		private Image<Bgr, byte> _oldImage = new Image<Bgr, byte>(640, 480);
         private MarkovChain _chain = new MarkovChain();
+        private MovingEventsDetector _moveDetector = new MovingEventsDetector();
 		private bool _playing;
 
 		public Form1()
 		{
-            //_imgCollection.GoTo(720);
+            _imgCollection.GoTo(700);
 			InitializeComponent();
 			_playTimer = new DispatcherTimer(new TimeSpan(0, 0, 0, 0, 100), DispatcherPriority.Normal, StepRight_Click,
 			                                 Dispatcher.CurrentDispatcher);
@@ -36,15 +36,19 @@ namespace auto
 			//UpdateResearchInfoByMovingDetection();
 			//EdgeDetect();
 		    MatchEvents();
+		    //DebugMoving();
 		}
 
         private void MatchEvents()
         {
             Image<Bgr, byte> currentImage = _imgCollection.GetImage();
             var events = BlobDetector.GetBlobEvents(currentImage);
-            var ways = _chain.NextStep(events);
+            var movingEvents = _moveDetector.GetMovingEvents(currentImage);
             _dataImage = currentImage;
             DrawEvents(_dataImage, events, new Bgr(Color.Green));
+            DrawEvents(_dataImage, movingEvents, new Bgr(Color.Yellow));
+            events.AddRange(movingEvents);
+            var ways = _chain.NextStep(events);
             DrawPolyline(_dataImage, ways.Item1, new Bgr(Color.Blue));
             DrawPolyline(_dataImage, ways.Item2, new Bgr(Color.Red));
         }
@@ -71,21 +75,17 @@ namespace auto
 			_dataImage = currentImage.Erode(3); //.Convert<Bgr, byte>();
 		}
 
-		private void EdgeDetect()
-		{
-			Image<Bgr, byte> currentImage = _imgCollection.GetImage();
-			_dataImage = BlobDetector.FindBlobs(currentImage);
-		}
+        private void EdgeDetect()
+        {
+            Image<Bgr, byte> currentImage = _imgCollection.GetImage();
+            _dataImage = BlobDetector.FindBlobs(currentImage);
+        }
 
-		private void UpdateResearchInfoByMovingDetection()
-		{
-			const double partSize = 0.2;
-			Image<Bgr, byte> tempImage = _oldImage;
-			Image<Bgr, byte> currentImage = _imgCollection.GetImage();
-			Image<Bgr, byte> newImage = _oldImage.Mul(1 - partSize).Add(currentImage.Mul(partSize));
-			_dataImage = newImage.AbsDiff(tempImage).Mul(10).ThresholdBinary(new Bgr(80, 100, 100), new Bgr(255, 255, 255));
-			_oldImage = newImage;
-		}
+        private void DebugMoving()
+        {
+            Image<Bgr, byte> currentImage = _imgCollection.GetImage();
+            _dataImage = _moveDetector.GetMoving(currentImage);
+        }
 
 		private void UpdateImage()
 		{

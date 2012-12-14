@@ -85,6 +85,7 @@
     <Compile Include="ImageFileGallery.cs" />
     <Compile Include="MarkovChain.cs" />
     <Compile Include="MaxFlowMinCost.cs" />
+    <Compile Include="MovingEventsDetector.cs" />
     <Compile Include="PriorityQueue.cs">
       <SubType>Code</SubType>
     </Compile>

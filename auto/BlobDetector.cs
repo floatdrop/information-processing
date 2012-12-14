@@ -101,8 +101,6 @@ namespace auto
 			edges = grayEdges.Convert<Bgr, byte>();
 			/* Flood fill */
 
-			var remapColorDict = new Dictionary<Bgr, Bgr>();
-
 			for (int i = 0; i < edges.Width; i++)
 			{
 				for (int j = 0; j < edges.Height; j++)
