@@ -70,14 +70,24 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BinaryHeap.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="BlobDetector.cs" />
+    <Compile Include="Event.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="Geometry.cs" />
     <Compile Include="ImageFileGallery.cs" />
+    <Compile Include="MarkovChain.cs" />
+    <Compile Include="MaxFlowMinCost.cs" />
+    <Compile Include="PriorityQueue.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form1.resx">

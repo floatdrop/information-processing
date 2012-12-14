@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
 using System.Windows.Threading;
 using Emgu.CV;
@@ -13,11 +15,12 @@ namespace auto
 		private readonly DispatcherTimer _playTimer;
 		private Image<Bgr, byte> _dataImage = new Image<Bgr, byte>(640, 480);
 		private Image<Bgr, byte> _oldImage = new Image<Bgr, byte>(640, 480);
+        private MarkovChain _chain = new MarkovChain();
 		private bool _playing;
 
 		public Form1()
 		{
-            _imgCollection.GoTo(720);
+            //_imgCollection.GoTo(720);
 			InitializeComponent();
 			_playTimer = new DispatcherTimer(new TimeSpan(0, 0, 0, 0, 100), DispatcherPriority.Normal, StepRight_Click,
 			                                 Dispatcher.CurrentDispatcher);
@@ -31,10 +34,29 @@ namespace auto
 		private void UpdateResearchInfo()
 		{
 			//UpdateResearchInfoByMovingDetection();
-			EdgeDetect();
+			//EdgeDetect();
+		    MatchEvents();
 		}
 
-		private void UpdateResearchInfoByMouseColorFinding()
+        private void MatchEvents()
+        {
+            Image<Bgr, byte> currentImage = _imgCollection.GetImage();
+            var events = BlobDetector.GetBlobEvents(currentImage);
+            var ways = _chain.NextStep(events);
+            _dataImage = currentImage;
+            DrawPolyline(_dataImage, ways.Item1, new Bgr(Color.Blue));
+            DrawPolyline(_dataImage, ways.Item2, new Bgr(Color.Red));
+        }
+
+        private void DrawPolyline(Image<Bgr, Byte> image, List<MarkovState> way, Bgr color)
+        {
+            for(int i = 1; i < way.Count; i++)
+            {
+                image.Draw(new LineSegment2D(Geometry.GetCenter(way[i].Coords), Geometry.GetCenter(way[i-1].Coords)), color, 3);
+            }
+        }
+
+	    private void UpdateResearchInfoByMouseColorFinding()
 		{
 			Image<Bgr, byte> currentImage = _imgCollection.GetImage();
 			_dataImage = currentImage.Erode(3); //.Convert<Bgr, byte>();
