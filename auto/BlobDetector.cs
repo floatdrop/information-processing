@@ -43,7 +43,7 @@ namespace auto
 						FLOODFILL_FLAG.DEFAULT,
 						mask.Ptr
 					);
-					mouseRegions.Add(comp);
+					mouseRegions.Add(comp, source);
 				}
 			}
 		}

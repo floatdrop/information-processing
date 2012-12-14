@@ -33,7 +33,7 @@ namespace auto
             Image<Bgr, byte> currentImage = ImgCollection.GetImage();
             _sw.Restart();
             BlobDetector.FindBlobs(currentImage, _mouseRegions);
-            DrawRegions(currentImage, _mouseRegions);
+            _mouseRegions.DrawRegions(currentImage);
 		    _dataImage = currentImage;
             _sw.Stop();
             DelayLabel.Text = String.Format("{0}ms", _sw.ElapsedMilliseconds);
@@ -41,22 +41,7 @@ namespace auto
 
         private readonly Stopwatch _sw = new Stopwatch();
 	    private readonly MouseRegions _mouseRegions = new MouseRegions();
-        private static MCvFont _font = new MCvFont(Emgu.CV.CvEnum.FONT.CV_FONT_HERSHEY_SIMPLEX, 0.5, 0.5);
-      
-	    private void DrawRegions(Image<Bgr, byte> dataImage, MouseRegions mouseRegions)
-	    {
-	        foreach (var region in _mouseRegions.Regions)
-	        {
-                dataImage.Draw(region.Rectangle, new Bgr(0,0,255), 2);
-                dataImage.Draw(region.Id, ref _font, GetCenter(region.Component.rect), new Bgr(0,0,255));
-	        }
-	    }
-
-	    private Point GetCenter(Rectangle rect)
-	    {
-	        return new Point(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
-	    }
-
+        
 	    private void UpdateImage()
 		{
 			ImageBox.Image = ImgCollection.GetImage();
