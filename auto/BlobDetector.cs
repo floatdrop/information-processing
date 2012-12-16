@@ -109,7 +109,7 @@ namespace auto
 			source.ROI = oldRoi;
 			mask.ROI = oldMaskRoi;
 			//source.Draw(comp.rect, rgbcolor, -1);
-			return hlscolor.Lightness > 140 && hlscolor.Hue < 150;
+			return hlscolor.Lightness > 100 && hlscolor.Hue < 150;
 		}
 
 		private static bool IsAreaSizeMousable(MCvConnectedComp comp)
