@@ -21,10 +21,9 @@ namespace auto
 
 		public Form1()
 		{
-			_imgCollection.GoTo(900);
 			videoWriter = new VideoWriter("video.avi", 20, 640, 480, true);
 			InitializeComponent();
-			_playTimer = new DispatcherTimer(new TimeSpan(0, 0, 0, 0, 100), DispatcherPriority.Normal, StepRight_Click,
+			_playTimer = new DispatcherTimer(new TimeSpan(0, 0, 0, 0, 1), DispatcherPriority.Normal, StepRight_Click,
 			                                 Dispatcher.CurrentDispatcher);
 			_playTimer.Stop();
 			UpdateResearchInfo();
