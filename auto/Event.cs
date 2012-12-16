@@ -18,8 +18,8 @@ namespace auto
             StartEvent
         }
 
-        public static Event Empty = new Event(new Rectangle(620, 240, 0, 0), EventType.ObjectNotFound);
-        public static Event Start = new Event(new Rectangle(620, 240, 0, 0), EventType.StartEvent);
+        public static Event Empty = new Event(new Rectangle(320, 240, 0, 0), EventType.ObjectNotFound);
+        public static Event Start = new Event(new Rectangle(320, 240, 0, 0), EventType.StartEvent);
 
         public Rectangle EventCoords;
         public EventType Type;

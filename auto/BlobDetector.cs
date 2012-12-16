@@ -109,7 +109,7 @@ namespace auto
 			source.ROI = oldRoi;
 			mask.ROI = oldMaskRoi;
 			//source.Draw(comp.rect, rgbcolor, -1);
-			return hlscolor.Lightness > 140 && hlscolor.Hue < 150;
+			return hlscolor.Lightness > 110 && hlscolor.Hue < 150;
 		}
 
 		private static bool IsAreaSizeMousable(MCvConnectedComp comp)
@@ -121,46 +121,44 @@ namespace auto
 
 		public static Image<Bgr, byte> FindBlobs(Image<Bgr, byte> source)
 		{
-			//source._EqualizeHist();
-			var edges = new Image<Bgr, byte>(source.Width, source.Height);
-			// source.SmoothMedian(5);
-			for (int i = 0; i < 3; i++)
-				edges[i] = source[i].Canny(new Gray(100), new Gray(100));
-			var distTransformed = new Image<Gray, float>(source.Width, source.Height);
-			var grayEdges = edges.Convert<Gray, byte>().Not();
-			CvInvoke.cvDistTransform(grayEdges.Ptr, distTransformed.Ptr, DIST_TYPE.CV_DIST_L2, 3, new[] { 1f, 1f }, IntPtr.Zero);
-			var byteDist = distTransformed.ThresholdBinaryInv(new Gray(2), new Gray(255)).Convert<Gray, byte>();
-			//return byteDist.Convert<Bgr, byte>();
-			Image<Gray, byte> mask = new Image<Gray, byte>(byteDist.Width + 2, byteDist.Height + 2);
-			mask.ROI = new Rectangle(1,1,byteDist.Width, byteDist.Height);
-			CvInvoke.cvCopy(byteDist, mask, IntPtr.Zero);
-			mask.ROI = new Rectangle(0, 0, byteDist.Width+2, byteDist.Height+2);
-			edges = grayEdges.Convert<Bgr, byte>();
-			/* Flood fill */
+            //source._EqualizeHist();
+            var edges = new Image<Bgr, byte>(source.Width, source.Height);
+            // source.SmoothMedian(5);
+            for (int i = 0; i < 3; i++)
+                edges[i] = source[i].Canny(new Gray(100), new Gray(100));
+            var distTransformed = new Image<Gray, float>(source.Width, source.Height);
+            var grayEdges = edges.Convert<Gray, byte>().Not();
+            CvInvoke.cvDistTransform(grayEdges.Ptr, distTransformed.Ptr, DIST_TYPE.CV_DIST_L2, 3, new[] { 1f, 1f }, IntPtr.Zero);
+            var byteDist = distTransformed.ThresholdBinaryInv(new Gray(2), new Gray(255)).Convert<Gray, byte>();
+            //return byteDist.Convert<Bgr, byte>();
+            Image<Gray, byte> mask = new Image<Gray, byte>(byteDist.Width + 2, byteDist.Height + 2);
+            mask.ROI = new Rectangle(1, 1, byteDist.Width, byteDist.Height);
+            CvInvoke.cvCopy(byteDist, mask, IntPtr.Zero);
+            mask.ROI = new Rectangle(0, 0, byteDist.Width + 2, byteDist.Height + 2);
+            edges = grayEdges.Convert<Bgr, byte>();
+            /* Flood fill */
 
-			for (int i = 0; i < edges.Width; i++)
-			{
-				for (int j = 0; j < edges.Height; j++)
-				{
-					if (mask.Data[j, i, 0] == 0)
-					{
-						var comp = new MCvConnectedComp();
-						CvInvoke.cvFloodFill(
-							edges.Ptr, 
-							new Point(i, j),
-							new MCvScalar(200, 200, 200, 0), // Color
-							new MCvScalar(0, 0, 0), // Lo
-							new MCvScalar(0, 0, 0),  // Up
-							out comp,
-							Emgu.CV.CvEnum.CONNECTIVITY.EIGHT_CONNECTED,
-							Emgu.CV.CvEnum.FLOODFILL_FLAG.DEFAULT,
-							mask.Ptr
-						);
+            for (int i = 0; i < edges.Width; i++)
+            {
+                for (int j = 0; j < edges.Height; j++)
+                {
+                    if (mask.Data[j, i, 0] == 0)
+                    {
+                        var comp = new MCvConnectedComp();
+                        CvInvoke.cvFloodFill(
+                            edges.Ptr,
+                            new Point(i, j),
+                            new MCvScalar(200, 200, 200, 0), // Color
+                            new MCvScalar(0, 0, 0), // Lo
+                            new MCvScalar(0, 0, 0),  // Up
+                            out comp,
+                            CONNECTIVITY.FOUR_CONNECTED,
+                            FLOODFILL_FLAG.DEFAULT,
+                            mask.Ptr
+                        );
 
-                        if (comp.area > 500 && comp.area < 2500 
-                            && comp.rect.Size.Height > 10 && comp.rect.Size.Height < 130 
-                            && comp.rect.Size.Width > 10 && comp.rect.Size.Width < 130)
-						{
+                        if (IsMouse(comp, source, mask))
+                        {
 							ReplaceColors(edges, comp.rect);
 						}
 					}

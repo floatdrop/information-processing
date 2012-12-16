@@ -9,7 +9,7 @@ namespace auto
 {
     class MarkovChain
     {
-        private const double EmptyPenalty = 0.2;
+        private const double EmptyPenalty = 0.25;
         private const int MaxQueueSize = 6;
         private const int MaxEmptySize = 10;
         private const int OutputLength = 50;
@@ -187,20 +187,32 @@ namespace auto
                 return;
             }
 
-            var prob = GetMoveProbability(state.Coords, newState.Coords);
+            var prob = GetMoveProbability(state.Coords, newState.Coords, newState.CurrentEvent.Type);
 
             state.EventsProbability.Add(newState, prob);
         }
 
-        private double GetMoveProbability(Rectangle rect1, Rectangle rect2)
+        private double GetMoveProbability(Rectangle rect1, Rectangle rect2, Event.EventType secEventType)
         {
-            var averageSize = (rect1.Size.Width + rect1.Size.Height) / 4 + (rect2.Size.Width + rect2.Size.Height) / 4; //что-то вроде суммы радиусов
+            var averageSize = (rect1.Size.Width + rect1.Size.Height)/4.0 + (rect2.Size.Width + rect2.Size.Height)/4.0; //что-то вроде суммы радиусов
             var center1 = Geometry.GetCenter(rect1);
             var center2 = Geometry.GetCenter(rect2);
-            var dist = Math.Sqrt(Math.Pow(center1.X - center2.X, 2) + Math.Pow(center1.Y - center2.Y, 2));
-            if (dist < averageSize)        //Если события происходят сильно рядом, штраф за расхождение идет небольшой
-                return Math.Pow(1 - dist/averageSize/2, 1/4.0);
-            return averageSize/dist*Math.Pow(1 - 1.0/2, 1/4.0);
+            var dist = Geometry.GetDistance(rect1, rect2);
+
+            if (secEventType == Event.EventType.ObjectIsFounded)
+            {
+                if (dist < averageSize)        //Если события происходят сильно рядом, штраф за расхождение идет небольшой
+                    return Math.Pow(1 - dist/averageSize/2, 1/4.0);
+                return Math.Pow(averageSize/dist, 1.5)*Math.Pow(1 - 1.0/2, 1/4.0);
+            }
+            else if (secEventType == Event.EventType.SomethingIsMoving)
+            {
+                if (dist < averageSize)        //Движение не может проиходить рядом с предыдущим положением
+                    return Math.Pow(dist / averageSize * 0.9 + 0.1, 1.5) * Math.Pow(1 - 1.0 / 2, 1 / 4.0);
+                return Math.Pow(averageSize / dist, 1.5) * Math.Pow(1 - 1.0 / 2, 1 / 4.0);
+            }
+
+            throw new Exception("No such Event in GetMoveProbability");
         }
     }
 
