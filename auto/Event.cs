@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Emgu.CV.Structure;
 
 namespace auto
 {
@@ -23,10 +24,20 @@ namespace auto
         public Rectangle EventCoords;
         public EventType Type;
 
-        public Event(Rectangle coords, EventType type)
+		public Event(Rectangle coords, EventType type)
+		{
+			EventCoords = coords;
+			AverageColor = new Bgr(255,255,255);
+			Type = type;
+		}
+
+        public Event(MCvConnectedComp comp, EventType type)
         {
-            EventCoords = coords;
+            EventCoords = comp.rect;
+	        AverageColor = new Bgr(comp.value.v0, comp.value.v1, comp.value.v2);
             Type = type;
         }
+
+	    public Bgr AverageColor;
     }
 }

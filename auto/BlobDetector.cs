@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
@@ -65,16 +66,14 @@ namespace auto
                             new MCvScalar(0, 0, 0), // Lo
                             new MCvScalar(0, 0, 0),  // Up
                             out comp,
-                            CONNECTIVITY.EIGHT_CONNECTED,
+                            CONNECTIVITY.FOUR_CONNECTED,
                             FLOODFILL_FLAG.DEFAULT,
                             mask.Ptr
                         );
-
-                        if (comp.area > 500 && comp.area < 2500
-                            && comp.rect.Size.Height > 10 && comp.rect.Size.Height < 130
-                            && comp.rect.Size.Width > 10 && comp.rect.Size.Width < 130)
+						
+						if (IsMouse(comp, source, mask))
                         {
-                            events.Add(new Event(comp.rect, Event.EventType.ObjectIsFounded));
+                            events.Add(new Event(comp, Event.EventType.ObjectIsFounded));
                         }
                     }
                 }
@@ -82,7 +81,45 @@ namespace auto
             return events;
         }
 
-	    public static Image<Bgr, byte> FindBlobs(Image<Bgr, byte> source)
+		private static bool IsMouse(MCvConnectedComp comp, Image<Bgr, byte> source, Image<Gray, byte> sourcemask)
+		{
+			if (!IsAreaSizeMousable(comp))
+				return false;
+			return IsAreaColorMousable(comp, source, sourcemask);
+		}
+
+		public static bool IsAreaColorMousable(MCvConnectedComp comp, Image<Bgr, byte> source, Image<Gray, byte> sourcemask)
+		{
+			var newRect = new Rectangle(comp.rect.Left, comp.rect.Top, comp.rect.Width, comp.rect.Height);
+			newRect.Inflate(-4, -4);
+			var mask = sourcemask.SmoothGaussian(7).Dilate(7).Erode(7).Copy();
+			var oldRoi = source.ROI;
+			var oldMaskRoi = mask.ROI;
+			source.ROI = newRect;
+			mask.ROI = newRect;
+			var hlscolor = source.Convert<Hls, byte>().GetAverage(mask);
+			var rgbcolor = source.GetAverage(mask);
+			using (var file = new System.IO.StreamWriter("output.html", true))
+			{
+				file.Write(
+					"<p><div style=\"background-color: #{3:X2}{4:X2}{5:X2}; width: 24px; height: 24px; float: left;\"></div>{0}, {1}, {2}</p>",
+					hlscolor.Hue, hlscolor.Lightness, hlscolor.Satuation, (int) rgbcolor.Red, (int) rgbcolor.Green, (int) rgbcolor.Blue);
+			}
+			//mask.Convert<Bgr, byte>().Copy(source, mask);
+			source.ROI = oldRoi;
+			mask.ROI = oldMaskRoi;
+			//source.Draw(comp.rect, rgbcolor, -1);
+			return hlscolor.Lightness > 140 && hlscolor.Hue < 150;
+		}
+
+		private static bool IsAreaSizeMousable(MCvConnectedComp comp)
+		{
+			return comp.area > 500 && comp.area < 2500
+			       && comp.rect.Size.Height > 10 && comp.rect.Size.Height < 130
+			       && comp.rect.Size.Width > 10 && comp.rect.Size.Width < 130;
+		}
+
+		public static Image<Bgr, byte> FindBlobs(Image<Bgr, byte> source)
 		{
 			//source._EqualizeHist();
 			var edges = new Image<Bgr, byte>(source.Width, source.Height);
@@ -146,136 +183,6 @@ namespace auto
 						edges.Data[j, i, 1] = 0;
 						edges.Data[j, i, 2] = 0;
 					}
-				}
-			}
-		}
-
-		private static MCvScalar GetColor()
-		{
-			return new MCvScalar(Rand.Next(1, 254), Rand.Next(1, 254), Rand.Next(1, 254), 255);
-		}
-
-
-		private static Image<Bgr, byte> GaussEdgeDetector(Image<Bgr, byte> source)
-		{
-			return source.SmoothGaussian(7).AbsDiff(source.SmoothGaussian(5)).Mul(20).ThresholdToZero(new Bgr(50, 50, 50));
-		}
-
-		private static Image<Bgr, byte> MedianEdgeDetector(Image<Bgr, byte> source)
-		{
-			return source.SmoothMedian(7).AbsDiff(source.SmoothMedian(5)).Mul(20).ThresholdToZero(new Bgr(50, 50, 50));
-		}
-
-        private static Image<Bgr, Byte> SuperCoolEdgeMedianSmooth(Image<Bgr, Byte> source, int[,] marks)
-        {
-            var blobToColorSum = new Dictionary<int, BlobInfo>();
-
-            for (int y = 0; y < marks.GetLength(0); y++)
-            {
-                for (int x = 0; x < marks.GetLength(1); x++)
-                {
-                    if(!blobToColorSum.ContainsKey(marks[y, x]))
-                    {
-                        blobToColorSum.Add(marks[y, x], new BlobInfo(source[y, x]));
-                    }
-                    else
-                    {
-                        blobToColorSum[marks[y, x]].AddStat(source[y, x]);
-                    }
-                }
-            }
-
-            var result = new Image<Bgr, byte>(source.Width, source.Height);
-
-            var avg = new Dictionary<int, Bgr>();
-
-            foreach (var markBlobPair in blobToColorSum)
-            {
-                avg[markBlobPair.Key] = markBlobPair.Value.GetAverage();
-            }
-
-
-            for (int y = 0; y < marks.GetLength(0); y++)
-            {
-                for (int x = 0; x < marks.GetLength(1); x++)
-                {
-                    if (marks[y, x] > 0)
-                        result[y, x] = avg[marks[y, x]];
-                }
-            }
-
-            return result;
-        }
-
-	    private static Image<Bgr, byte> GenerageImage(int[,] marks)
-		{
-			var image = new Image<Bgr, byte>(marks.GetLength(1), marks.GetLength(0));
-			var colors = new Dictionary<int, Bgr>();
-            colors.Add(0, new Bgr(0, 0, 0));
-
-			for (int y = 0; y < marks.GetLength(0); y++)
-			{
-				for (int x = 0; x < marks.GetLength(1); x++)
-				{
-					if (!colors.ContainsKey(marks[y, x]))
-					{
-						colors.Add(marks[y, x], new Bgr((byte)Rand.Next(255), (byte)Rand.Next(255), (byte)Rand.Next(255)));
-					}
-					image[y, x] = colors[marks[y, x]]; 
-				}
-			}
-			return image;
-		}
-
-		private static int[,] MarkBlobs(Image<Gray, float> distTransformed)
-		{
-            var marks = new int[distTransformed.Height, distTransformed.Width];
-			int currentMark = 1;
-
-            for (int x = 0; x < distTransformed.Width; x++)
-			{
-                for (int y = 0; y < distTransformed.Height; y++)
-				{
-					if (marks[y, x] == 0)
-                        MarkArea(marks, distTransformed, x, y, currentMark++);
-				}
-			}
-			return marks;
-		}
-
-		private static readonly Tuple<int, int>[] PossibleMoves = new[]
-		{
-			Tuple.Create(1, 0),
-			Tuple.Create(0, 1),
-			Tuple.Create(-1, 0),
-			Tuple.Create(0, -1)
-		};
-
-	    private const float BlobThreshold = 2;
-
-        private static void MarkArea(int[,] marks, Image<Gray, float> distTransformed, int x, int y, int currentMark)
-		{
-            if (distTransformed[y, x].Intensity < BlobThreshold)
-                return;
-
-			var queue = new Queue<Tuple<int, int>>();
-            queue.Enqueue(Tuple.Create(x, y));
-            marks[y, x] = currentMark;
-				
-			while (queue.Count > 0)
-			{
-				var xy = queue.Dequeue();
-				foreach (var move in PossibleMoves)
-				{
-					var newX = xy.Item1 + move.Item1;
-					var newY = xy.Item2 + move.Item2;
-					if(newX < 0 || newX >= distTransformed.Width || newY < 0 || newY >= distTransformed.Height)
-						continue;
-                    if (marks[newY, newX] == 0 && distTransformed[newY, newX].Intensity >= BlobThreshold)
-                    {
-                        marks[newY, newX] = currentMark;
-						queue.Enqueue(Tuple.Create(newX, newY));
-                    }
 				}
 			}
 		}

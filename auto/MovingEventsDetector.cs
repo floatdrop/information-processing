@@ -57,7 +57,8 @@ namespace auto
 
                         if (comp.area > 500 && comp.area < 2500
                             && comp.rect.Size.Height > 10 && comp.rect.Size.Height < 230
-                            && comp.rect.Size.Width > 10 && comp.rect.Size.Width < 230)
+                            && comp.rect.Size.Width > 10 && comp.rect.Size.Width < 230
+							&& BlobDetector.IsAreaColorMousable(comp, source, mask))
                         {
                             events.Add(new Event(comp.rect, Event.EventType.SomethingIsMoving));
                         }

@@ -17,10 +17,12 @@ namespace auto
         private MarkovChain _chain = new MarkovChain();
         private MovingEventsDetector _moveDetector = new MovingEventsDetector();
 		private bool _playing;
+		private VideoWriter videoWriter;
 
 		public Form1()
 		{
-            _imgCollection.GoTo(700);
+			_imgCollection.GoTo(140);
+			videoWriter = new VideoWriter("video.avi", 20, 640, 480, true);
 			InitializeComponent();
 			_playTimer = new DispatcherTimer(new TimeSpan(0, 0, 0, 0, 100), DispatcherPriority.Normal, StepRight_Click,
 			                                 Dispatcher.CurrentDispatcher);
@@ -36,7 +38,8 @@ namespace auto
 			//UpdateResearchInfoByMovingDetection();
 			//EdgeDetect();
 		    MatchEvents();
-		    //DebugMoving();
+			videoWriter.WriteFrame(_dataImage);
+			//DebugMoving();
 		}
 
         private void MatchEvents()
@@ -120,12 +123,14 @@ namespace auto
 			if (_playing)
 			{
 				PlayStop.Text = "Play";
+				videoWriter.Dispose();
 				_playTimer.Stop();
 			}
 			else
 			{
 				PlayStop.Text = "Stop";
-				_playTimer.Start();
+				videoWriter = new VideoWriter("video.avi", 20, 640, 480, true);
+            	_playTimer.Start();
 			}
 			_playing = !_playing;
 		}
