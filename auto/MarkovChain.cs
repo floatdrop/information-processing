@@ -9,7 +9,7 @@ namespace auto
 {
     class MarkovChain
     {
-        private const double EmptyPenalty = 0.25;
+        private const double EmptyPenalty = 0.2;
         private const int MaxQueueSize = 6;
         private const int MaxEmptySize = 10;
         private const int OutputLength = 50;
