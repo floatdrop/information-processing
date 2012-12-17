@@ -24,8 +24,11 @@ namespace auto
                 {
                     foreach (var secondEdge in state.SecondObjState.Edges.Where(edge => edge.To != firstEdge.To || edge.To == output))
                     {
+                        if (secondEdge.To.Edges.Any(a => a.To == output))
+                            Console.Write("");
+
                         var newState = new State<T>(firstEdge.To, secondEdge.To,
-                                                    state.Probability*firstEdge.Weight*secondEdge.Weight, 
+                                                    state.Probability * (firstEdge.Weight + secondEdge.Weight) / 2.0, 
                                                     state);
 
                         queue.Enqueue(newState.Probability, newState);

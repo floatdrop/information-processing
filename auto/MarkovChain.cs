@@ -129,7 +129,7 @@ namespace auto
             while (queue.Count > 0)
             {
                 var nodeLevel = queue.Dequeue();
-                if(nodeLevel.Item2 == MaxQueueSize) //TODO зачекать
+                if(nodeLevel.Item2 == MaxQueueSize)
                 {
                     nodeLevel.Item1.AddEdge(graphInfo.End, 1);
                     continue;
@@ -194,25 +194,33 @@ namespace auto
 
         private double GetMoveProbability(Rectangle rect1, Rectangle rect2, Event.EventType secEventType)
         {
-            var averageSize = (rect1.Size.Width + rect1.Size.Height)/4.0 + (rect2.Size.Width + rect2.Size.Height)/4.0; //что-то вроде суммы радиусов
+            const double powCoef = 4;
+            const double nearLevel = 2.0;
+            const double farPowLevel = 1.5;
+
+            const double divConst = 2;
+            const double stepConst = 50;
+
+            var averageSize = (rect1.Size.Width + rect1.Size.Height) / 4.0 + (rect2.Size.Width + rect2.Size.Height) / 4.0; //что-то вроде суммы радиусов
             var center1 = Geometry.GetCenter(rect1);
             var center2 = Geometry.GetCenter(rect2);
             var dist = Geometry.GetDistance(rect1, rect2);
 
             if (secEventType == Event.EventType.ObjectIsFounded)
             {
-                if (dist < averageSize)        //Если события происходят сильно рядом, штраф за расхождение идет небольшой
-                    return Math.Pow(1 - dist/averageSize/2, 1/4.0);
-                return Math.Pow(averageSize/dist, 1.5)*Math.Pow(1 - 1.0/2, 1/4.0);
+                return Math.Pow(1 / (dist / stepConst + divConst) * divConst, farPowLevel);
             }
             else if (secEventType == Event.EventType.SomethingIsMoving)
             {
+                var border = Math.Pow(1 / (averageSize / stepConst + divConst) * divConst, farPowLevel);
                 if (dist < averageSize)        //Движение не может проиходить рядом с предыдущим положением
-                    return Math.Pow(dist / averageSize * 0.9 + 0.1, 1.5) * Math.Pow(1 - 1.0 / 2, 1 / 4.0);
-                return Math.Pow(averageSize / dist, 1.5) * Math.Pow(1 - 1.0 / 2, 1 / 4.0);
+                    return Math.Pow(dist / averageSize * 0.9 + 0.1, farPowLevel) * border;
+                return Math.Pow(1 / (dist / stepConst + divConst) * divConst, farPowLevel);
             }
 
+
             throw new Exception("No such Event in GetMoveProbability");
+
         }
     }
 
