@@ -40,6 +40,7 @@ namespace auto
 		    MatchEvents();
 			//videoWriter.WriteFrame(_dataImage);
 			//DebugMoving();
+		    //Experiment();
 		}
 
         private void MatchEvents()
@@ -72,13 +73,15 @@ namespace auto
             }
         }
 
-	    private void UpdateResearchInfoByMouseColorFinding()
-		{
-			Image<Bgr, byte> currentImage = _imgCollection.GetImage();
-			_dataImage = currentImage.Erode(3); //.Convert<Bgr, byte>();
-		}
+        private void Experiment()
+        {
+            Image<Bgr, byte> currentImage = _imgCollection.GetImage();
+            var hslIm = currentImage.Convert<Luv, Byte>();
+            _dataImage = hslIm[1].ThresholdBinary(new Gray(100), new Gray(255))
+                            .Convert<Bgr, Byte>();
+        }
 
-        private void EdgeDetect()
+        private void BlobDetect()
         {
             Image<Bgr, byte> currentImage = _imgCollection.GetImage();
             _dataImage = BlobDetector.FindBlobs(currentImage);
